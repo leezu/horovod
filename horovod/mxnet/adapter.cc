@@ -55,21 +55,14 @@ MXPersistentBuffer::AccessData(std::shared_ptr<OpContext> context) const {
   return buffer_;
 }
 
-MXTensor::MXTensor(NDArray* tensor) : tensor_(tensor) {}
+MXTensor::MXTensor(NDArrayHandle tensor) : tensor_(tensor) {}
 
 const DataType MXTensor::dtype() const {
   return TensorUtil::GetDType(tensor_);
 }
 
 const TensorShape MXTensor::shape() const {
-  auto shape = TensorUtil::GetShape(tensor_);
-  if (shape.dims() == 0) {
-    // Tensor with empty shape is a Tensor with no values in MXNet, unlike a
-    // constant in TensorFlow. So, we inject a dummy zero dimension to make sure
-    // that the number-of-elements calculation is correct.
-    shape.AddDim(0);
-  }
-  return shape;
+  return TensorUtil::GetShape(tensor_);
 }
 
 const void* MXTensor::data() const {
@@ -81,7 +74,7 @@ int64_t MXTensor::size() const {
   return TensorUtil::GetSize(tensor_);
 }
 
-MXOpContext::MXOpContext(int device, NDArray* output)
+MXOpContext::MXOpContext(int device, NDArrayHandle output)
     : device_(device), output_(output) {}
 
 Status
@@ -94,13 +87,19 @@ MXOpContext::AllocatePersistent(int64_t size,
 
 Status MXOpContext::AllocateOutput(TensorShape shape,
                                    std::shared_ptr<Tensor>* tensor) {
-  int64_t* shape_array = new int64_t[shape.dims()];
+  std::vector<int64_t> shape_array;
+  shape_array.reserve(shape.dims());
   for (int idx = 0; idx < shape.dims(); idx++) {
     shape_array[idx] = shape.dim_size(idx);
   }
-  TensorUtil::ResizeNd(output_, shape.dims(), shape_array);
-  delete[] shape_array;
-  *tensor = std::make_shared<MXTensor>(output_);
+  NDArrayHandle tensor_;
+  int dtype, dev_type, dev_id;
+  CHECK_CALL(MXNDArrayGetDType(output_, &dtype));
+  CHECK_CALL(MXNDArrayGetContext(output_, &dev_type, &dev_id));
+  CHECK_CALL(MXNDArrayCreate64(shape_array.data(), shape.dims(), dev_type, dev_id,
+                               0 /* delay_alloc */, dtype, &tensor_));
+  *tensor = std::make_shared<MXTensor>(tensor_);
+
   return Status::OK();
 }
 

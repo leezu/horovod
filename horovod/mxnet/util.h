@@ -16,6 +16,16 @@
 #ifndef HOROVOD_MXNET_UTIL_H
 #define HOROVOD_MXNET_UTIL_H
 
+#include <stdexcept>
+
+#define CHECK_CALL(func)                                                      \
+  {                                                                           \
+     int error_code = (func);                                                 \
+     if (error_code != 0) {                                                   \
+       throw std::runtime_error{MXGetLastError()};                            \
+     }                                                                        \
+  }
+
 #if HAVE_CUDA
 
 #include <cuda_runtime.h>

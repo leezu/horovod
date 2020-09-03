@@ -17,8 +17,7 @@
 #define HOROVOD_MXNET_TENSOR_UTIL_H
 
 #include <cassert>
-#include <mxnet/base.h>
-#include <mxnet/ndarray.h>
+#include <mxnet/c_api.h>
 
 #include "../common/common.h"
 #include "util.h"
@@ -27,24 +26,17 @@ namespace horovod {
 namespace mxnet {
 
 using namespace horovod::common;
-using namespace ::mxnet;
 
 class TensorUtil {
 public:
-  static const DataType GetDType(NDArray* tensor);
-  static const TensorShape GetShape(NDArray* tensor);
-  static const void* GetData(NDArray* tensor);
-  static int64_t GetSize(NDArray* tensor);
-  static int GetDevice(NDArray* tensor);
+  static const DataType GetDType(NDArrayHandle tensor);
+  static const TensorShape GetShape(NDArrayHandle tensor);
+  static const void* GetData(NDArrayHandle tensor);
+  static int64_t GetSize(NDArrayHandle tensor);
+  static int GetDevice(NDArrayHandle tensor);
 
-  static void ResizeNd(NDArray* tensor, int ndim, int64_t* dims);
-  static void Copy(NDArray* output, NDArray* tensor);
-  static void DivideTensorInPlace(NDArray* tensor, int value);
-
-#if HAVE_CUDA
-  static void AsyncCopyCPUToCuda(NDArray* cpu, NDArray* cuda);
-  static void AsyncCopyCudaToCPU(NDArray* cuda, NDArray* cpu);
-#endif
+  static void Copy(NDArrayHandle output, NDArrayHandle tensor);
+  static void DivideTensorInPlace(NDArrayHandle tensor, int value);
 
 private:
   static const size_t kFloat32Size = 4;

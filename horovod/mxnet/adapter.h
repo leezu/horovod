@@ -16,15 +16,13 @@
 #ifndef HOROVOD_MXNET_ADAPTER_H
 #define HOROVOD_MXNET_ADAPTER_H
 
-#include <mxnet/base.h>
+#include <mxnet/c_api.h>
 #include "../common/common.h"
 
 namespace horovod {
 namespace mxnet {
 
 using namespace horovod::common;
-
-typedef ::mxnet::NDArray NDArray;
 
 class MXPersistentBuffer : public PersistentBuffer {
 public:
@@ -39,19 +37,19 @@ private:
 
 class MXTensor : public Tensor {
 public:
-  MXTensor(NDArray *tensor);
+  MXTensor(NDArrayHandle tensor);
   virtual const DataType dtype() const override;
   virtual const TensorShape shape() const override;
   virtual const void* data() const override;
   virtual int64_t size() const override;
 
 protected:
-  NDArray* tensor_;
+  NDArrayHandle tensor_;
 };
 
 class MXOpContext : public OpContext {
 public:
-  MXOpContext(int device, NDArray* output);
+  MXOpContext(int device, NDArrayHandle output);
   virtual Status
   AllocatePersistent(int64_t size,
                      std::shared_ptr<PersistentBuffer>* tensor) override;
@@ -63,7 +61,7 @@ public:
 
 private:
   int device_;
-  NDArray* output_;
+  NDArrayHandle output_;
 };
 
 void ThrowIfError(const Status& status);
