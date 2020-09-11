@@ -18,7 +18,6 @@
 #endif
 
 #include "adapter.h"
-#include "cuda_util.h"
 #include "tensor_util.h"
 
 namespace horovod {
@@ -35,12 +34,15 @@ namespace mxnet {
 // application, we should revisit this logic.
 MXPersistentBuffer::MXPersistentBuffer(int device, int64_t size)
     : device_(device) {
-  with_device device_context(device_);
   if (device_ == CPU_DEVICE_ID) {
     buffer_ = new char[size];
   } else {
 #if HAVE_CUDA
+    int restore_device;
+    CUDA_CALL(cudaGetDevice(&restore_device));
+    CUDA_CALL(cudaSetDevice(device_));
     CUDA_CALL(cudaMalloc((void**)&buffer_, size));
+    CUDA_CALL(cudaSetDevice(restore_device));
 #else
     throw std::logic_error("Internal error. Requested MXPersistentBuffer "
                            "with GPU device but not compiled with CUDA.");

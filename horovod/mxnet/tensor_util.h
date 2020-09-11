@@ -21,7 +21,6 @@
 #include <mxnet/ndarray.h>
 
 #include "../common/common.h"
-#include "cuda_util.h"
 #include "util.h"
 
 namespace horovod {

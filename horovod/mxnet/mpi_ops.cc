@@ -17,7 +17,6 @@
 #include <atomic>
 
 #include "../common/operations.h"
-#include "cuda_util.h"
 #include "mpi_ops.h"
 
 namespace horovod {

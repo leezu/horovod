@@ -42,7 +42,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMSHADOW_USE_MKL=0 -DMSHADOW_USE_F16C=0
 # MXNet SOURCES
 list(APPEND Mxnet_SOURCES "${PROJECT_SOURCE_DIR}/horovod/mxnet/mpi_ops.cc"
                           "${PROJECT_SOURCE_DIR}/horovod/mxnet/tensor_util.cc"
-                          "${PROJECT_SOURCE_DIR}/horovod/mxnet/cuda_util.cc"
                           "${PROJECT_SOURCE_DIR}/horovod/mxnet/adapter.cc")
 
 # Create library
